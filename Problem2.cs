@@ -21,20 +21,32 @@ public class Problem2
         int[] nums = { 2, 7, 11, 15 };
         int target = 10;
 
-        var result = FindTwoTargetValues(nums, target);
+        try
+        {
+            var result = FindTwoTargetValues(nums, target);
 
-        if (result.HasValue)
-        {
-            Console.WriteLine($"Numbers: {result.Value.Item1} and {result.Value.Item2}");
+            if (result.HasValue)
+            {
+                Console.WriteLine($"Numbers: {result.Value.Item1} and {result.Value.Item2}");
+            }
+            else
+            {
+                Console.WriteLine($"No two numbers add up to {target}.");
+            }
         }
-        else
+        catch(Exception ex)
         {
-            Console.WriteLine($"No two numbers add up to {target}.");
+            Console.WriteLine("Exception :"+ ex.Message);
         }
-        Console.ReadLine();
     }
     public static (int, int)? FindTwoTargetValues(int[] nums, int target)
     {
+
+        if (nums == null || nums.Length < 2)
+        {
+            throw new ArgumentException("Input array must contain at least two elements.");
+        }
+
         Dictionary<int, int> numMapping = new Dictionary<int, int>();
 
         for (int i = 0; i < nums.Length; i++)
