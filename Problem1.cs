@@ -28,6 +28,13 @@
 
 namespace Problem1
 {
+    public enum PaymentType
+    {
+        CreditCard,
+        PayPal,
+        Crypto
+    }
+
     // Defined the PaymentMethod interface for all payment types
     public interface IPaymentMethod
     {
@@ -62,19 +69,15 @@ namespace Problem1
     // Implementing the Factory to create instances of payment methods
     public static class PaymentMethodFactory
     {
-        public static IPaymentMethod CreatePaymentMethod(string type)
+        public static IPaymentMethod CreatePaymentMethod(PaymentType type)
         {
-            switch (type)
+            return type switch
             {
-                case "CreditCard":
-                    return new CreditCardPayment();
-                case "PayPal":
-                    return new PayPalPayment();
-                case "Crypto":
-                    return new CryptoPayment();
-                default:
-                    throw new ArgumentException("Invalid payment method type.");
-            }
+                PaymentType.CreditCard => new CreditCardPayment(),
+                PaymentType.PayPal => new PayPalPayment(),
+                PaymentType.Crypto => new CryptoPayment(),
+                _ => throw new ArgumentException("Invalid payment method type.")
+            };
         }
     }
 
@@ -83,10 +86,10 @@ namespace Problem1
     {
         private readonly IPaymentMethod _paymentMethod;
 
-        public PaymentProcessor(string paymentType)
+        // Constructor now accepts an IPaymentMethod instance for Dependency Injection
+        public PaymentProcessor(IPaymentMethod paymentMethod)
         {
-            // Use the factory to create the desired payment method
-            _paymentMethod = PaymentMethodFactory.CreatePaymentMethod(paymentType);
+            _paymentMethod = paymentMethod ?? throw new ArgumentNullException(nameof(paymentMethod));
         }
 
         public void Process(decimal amount)
@@ -99,7 +102,11 @@ namespace Problem1
     {
         static void Main()
         {
-            var processor = new PaymentProcessor("PayPal");
+            // Creating a payment method using the factory
+            IPaymentMethod paymentMethod = PaymentMethodFactory.CreatePaymentMethod(PaymentType.PayPal);
+
+            // Injecting the payment method into the PaymentProcessor
+            var processor = new PaymentProcessor(paymentMethod);
             processor.Process(100.00m); // Processes payment via PayPal
         }
     }
